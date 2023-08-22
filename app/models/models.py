@@ -17,6 +17,7 @@ class RegistroFila(db.Model):
     turno = db.Column(db.String(255), nullable=False)
     fila_id = db.Column(db.Integer, db.ForeignKey('fila_maestra.id'), nullable=False)
     modulo = db.Column(db.Integer)
+    prioridad = db.Column(db.Integer)
     user = db.Column(db.String(255))
     fecha_inicio = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_atendido = db.Column(db.DateTime)

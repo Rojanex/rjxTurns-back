@@ -1,10 +1,10 @@
 import queue
 import json
 from flask import Blueprint, jsonify, request, current_app
-from app.utils.manage_queue import CustomQueue, create_queues_from_json
 from datetime import datetime
 from app.models.models import RegistroFila, FilaMaestra
 from app.extensions import db
+from app.utils.db_functions import modify_element
 
 queue_bp = Blueprint('queue', __name__)
 
@@ -12,9 +12,8 @@ queue_bp = Blueprint('queue', __name__)
 def add_element():
     queue_name = request.args.get('queue_name')
     priority = request.args.get('priority', 1)
-    module = request.args.get('module', 0)
     queues_info = current_app.config['queues_info']  # Access queues_info from the app context
-    total_modules = current_app.config['total_modules']
+    
     target_queue = None
     for name, queue in queues_info:
         if name == queue_name:
@@ -29,20 +28,22 @@ def add_element():
     c400_exists = any(elem[1] == 'C400' for elem in target_queue.get_elements())
     priority2_exists = any(elem[0] == '2' for elem in target_queue.get_elements())
     if (c400_exists and priority != '0') or priority2_exists:
-        target_queue.enqueue(('2', element))  # Add with priority -1
-    else:
-        target_queue.enqueue((priority, element))  # Add with priority 1
+        priority = '2'  # Add with priority 2
     
     #Add element to database
     obj_fila_maestra = FilaMaestra.query.filter_by(nombre=name).first()
-    if obj_fila_maestra and module != 0 and int(module) in range(int(total_modules)+1):
+    if obj_fila_maestra:
         #Check num module
-        add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, modulo=module, user='John Doe', fecha_inicio=datetime.now())
+        add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user='John Doe', fecha_inicio=datetime.now())
         db.session.add(add_element_db)
         db.session.commit()
     else:
         return jsonify({'message': 'Query params incorrect, verify queue'}), 404
 
+
+    target_queue.enqueue((priority, element, add_element_db.id))  # Add with priority 1
+    
+    
     elements = target_queue.get_elements()
     elements.sort(key=lambda x: (int(x[0] != '0'), int(x[0]), x[1]))
     
@@ -51,10 +52,12 @@ def add_element():
 
 
 
-@queue_bp.route('/remove_element', methods=['GET'])
+@queue_bp.route('/call_element', methods=['GET'])
 def remove_element():
     queue_name = request.args.get('queue_name')
     queues_info = current_app.config['queues_info']  # Access queues_info from the app context
+    module = request.args.get('module', 0)
+    total_modules = current_app.config['total_modules']
 
     target_queue = None
     for name, queue in queues_info:
@@ -63,10 +66,27 @@ def remove_element():
             break
 
     if target_queue is None:
-        return jsonify({'message': 'Queue not found'}), 404
+        return jsonify({'message': 'Queue not found'}), 404 
 
-    result = target_queue.dequeue()
-    print(result)
-    return jsonify({'message': 'Element remove from queue'}), 200
+    result = target_queue.dequeue() 
+    if result:
+        if module != 0 and int(module) in range(int(total_modules)+1):
+            print(result)
+            modify_element(id=result[2], column_to_modify='modulo', data=module)
+            modify_element(id=result[2], column_to_modify='fecha_atendido', data=datetime.now())
+            return jsonify({'message': 'Element remove from queue'}), 200
+        else:
+            return jsonify({'message': 'Query params incorrect, verify queue'}), 404
+    else:
+        return jsonify({'message': 'No more elements to remove'}), 200
 
 
+@queue_bp.route('/end_element', methods=['POST'])
+def end_element():
+    element = request.form.get('id')
+    if element:
+        modify_element(id=element, column_to_modify='fecha_fin', data=datetime.now())
+        return jsonify({'message': 'Element end '}), 200
+    else:
+        return jsonify({'message': 'No element to end'}), 200
+ 
