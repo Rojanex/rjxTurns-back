@@ -1,10 +1,11 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 from .config import Config
 from app.routes.queue import queue_bp
+from app.routes.data import data_bp
 from app.utils.manage_queue import *
-from .extensions import db
+from .extensions import db, socketio
 from dotenv import load_dotenv
 from app.utils.db_functions import connection_db
 import os
@@ -15,6 +16,8 @@ ma = Marshmallow()
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
+    socketio.init_app(app, cors_allowed_origins='*')
     config = Config()
     app.config.from_object(config)
     db.init_app(app)
@@ -29,6 +32,7 @@ def create_app():
 
     app.config['total_modules'] = os.environ.get('NUM_MODULES')
     app.register_blueprint(queue_bp, url_prefix='/queue')
+    app.register_blueprint(data_bp, url_prefix='/data')
     
     
     return app

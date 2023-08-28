@@ -34,7 +34,7 @@ class CustomQueue:
     def get_elements(self):
         return self.queue
 
-def create_queues_from_json(filename='/Users/rojanex/deveploment/rjxTurns/app/utils/set_queues.json', conn=None):
+def create_queues_from_json(filename='/Users/rojanex/deveploment/rjxTurns/rjxTurns-back/app/utils/set_queues.json', conn=None):
     queues = []
 
     with open(filename, 'r') as file:

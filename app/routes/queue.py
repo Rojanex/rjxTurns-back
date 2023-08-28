@@ -1,6 +1,5 @@
-import queue
-import json
 from flask import Blueprint, jsonify, request, current_app
+from app.extensions import socketio
 from datetime import datetime
 from app.models.models import RegistroFila, FilaMaestra
 from app.extensions import db
@@ -52,6 +51,7 @@ def add_element():
 
 
 
+@socketio.on('element_removed')
 @queue_bp.route('/call_element', methods=['GET'])
 def remove_element():
     queue_name = request.args.get('queue_name')
@@ -74,6 +74,7 @@ def remove_element():
             print(result)
             modify_element(id=result[2], column_to_modify='modulo', data=module)
             modify_element(id=result[2], column_to_modify='fecha_atendido', data=datetime.now())
+            socketio.emit('element_removed', {'message': 'Element removed from queue', 'removedElement': result})
             return jsonify({'message': 'Element remove from queue'}), 200
         else:
             return jsonify({'message': 'Query params incorrect, verify queue'}), 404

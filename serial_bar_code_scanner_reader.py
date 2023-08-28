@@ -25,6 +25,8 @@ from threading import Thread
 import serial.tools.list_ports
 import serial
 
+
+
 from src.barcode.colombian_pdf417_decoder import ColombianIdCardPdf417Decoder
 
 # Debes cambiar esto por el puerto serial del lector de códigos de barra
@@ -51,9 +53,9 @@ def find_serial_port() -> str:
     latest_port_number = 0
     latest_port_number_name = ''
     for port in ports:
-        print(port)
+        print(port.device)
         for name in SERIAL_PORT_NAMES:
-            if port.device.startswith('/dev/cu.'):
+            if port.device.startswith('/dev/cu.usbmodem'):
                 return port.device
             if not port.device.startswith(name):
                 continue
@@ -82,6 +84,7 @@ def barcode_serial():
             # En estos primeros 200 bytes se encuentra toda la data que extraeremos
             c = serial_port.read(COLOMBIAN_CEDULA_PDF417_TRUNKED_LEN)
             print(c)
+            c = "0361231117PubDSK_14883801002388110ROJANOMARQUEZLUISAFERNANDA0F20000424051180O+200023QS025501280128}my0141x0131l014850134!yDs01930135<^^aXVeL0136o01290137013901550141017220165g01470167Z0168fV0158015901580168{A0152N0143016001470160017001700134301400173]017401500182x0188s8~0194l01990139M|0174016301810137018801481lEjQ\[iW[a^]OqT}Wqtzd017402530142o0243022301820016AR01320235T[0253700027PU025501280128w01300145j01280162o0146s0154x016801450166o0171h0152015001270205o01440132^01410164f016401360198g0170`0198015002010137L0134015101540178W:0135+01270162SF^Wo0162^3^[Jel0129013301530171l01510167od01610176z0174o0164014701840142019201420201014701570164AzUvVTdvtiu_q01270142exu}01510133j01390160l0184VQ01400174001702550219U%02510150S02010127022100170151019601960006K>Z01310158~013100040248/0209~Y5022501450232-l0238L0001020302000194022001416N”01760008"
             frame.extend(c)
             
             pub_sdk_mark_idx = frame.find(PUB_SDK_MARK)
@@ -105,8 +108,30 @@ def barcode_serial():
     except Exception as e:
         print(e)
 
+def test_string():
+    frame = bytearray()
+    c = "0361231117PubDSK_14883801002388110ROJANOMARQUEZLUISAFERNANDA0F20000424051180O+200023QS025501280128}my0141x0131l014850134!yDs01930135<^^aXVeL0136o01290137013901550141017220165g01470167Z0168fV0158015901580168{A0152N0143016001470160017001700134301400173]017401500182x0188s8~0194l01990139M|0174016301810137018801481lEjQ\[iW[a^]OqT}Wqtzd017402530142o0243022301820016AR01320235T[0253700027PU025501280128w01300145j01280162o0146s0154x016801450166o0171h0152015001270205o01440132^01410164f016401360198g0170`0198015002010137L0134015101540178W:0135+01270162SF^Wo0162^3^[Jel0129013301530171l01510167od01610176z0174o0164014701840142019201420201014701570164AzUvVTdvtiu_q01270142exu}01510133j01390160l0184VQ01400174001702550219U%02510150S02010127022100170151019601960006K>Z01310158~013100040248/0209~Y5022501450232-l0238L0001020302000194022001416N”01760008"
+    frame.extend(c)
+    print(frmae)
+    
+    pub_sdk_mark_idx = frame.find(PUB_SDK_MARK)
+    if pub_sdk_mark_idx == -1:
+        print(1)
+    if frame[pub_sdk_mark_idx - 10:pub_sdk_mark_idx].count(NULL_BYTE) > 4:
+        frame = frame[pub_sdk_mark_idx - 24:]
+    else:
+        frame = frame[pub_sdk_mark_idx - 13:]
+    if len(frame) < 200:
+        print(2)
+    decoder = ColombianIdCardPdf417Decoder(frame)
+    frame = bytearray()
+    data = decoder.decode()
+    result = json.dumps(data, indent=2, default=lambda o: o.__dict__)
+    print(result)
+
 
 if __name__ == '__main__':
-    thread1 = Thread(target=barcode_serial)
-    thread1.start()
-    thread1.join()
+    test_string()
+    # thread1 = Thread(target=barcode_serial)
+    # thread1.start()
+    # thread1.join()
