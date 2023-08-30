@@ -26,6 +26,7 @@ def create_app():
         conn = connection_db()
         queues_info = create_queues_from_json(conn=conn)    
         app.config['queues_info'] = queues_info  # Store queues_info in the app context
+        app.config['folder_path'] = os.environ.get('FOLDER_PATH')
 
     with app.app_context():
         create_tables()   

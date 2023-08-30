@@ -41,6 +41,20 @@ def get_attend_elements():
     filtered_items = items.all()
     return filtered_items
 
+def get_all_queues():
+    items = FilaMaestra.query.order_by()
+    filtered_items = items.all()
+    return filtered_items
+
+
+def get_in_list_elements():
+    items = RegistroFila.query\
+        .filter(RegistroFila.fecha_fin.is_(None))\
+        .filter(RegistroFila.fecha_atendido.is_(None))\
+        .order_by(RegistroFila.fecha_inicio.asc())
+    filtered_items = items.limit(6).all()
+    return filtered_items
+
 
 
         
