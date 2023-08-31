@@ -9,6 +9,7 @@ from app.utils.manage_queue import create_element
 
 queue_bp = Blueprint('queue', __name__)
 
+@socketio.on('elementSdded')
 @queue_bp.route('/add_element', methods=['GET'])
 def add_element():
     queue_name = request.args.get('queue_name')
@@ -38,6 +39,7 @@ def add_element():
         add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user='John Doe', fecha_inicio=datetime.now())
         db.session.add(add_element_db)
         db.session.commit()
+        socketio.emit('elementAdded', {'message': 'Element added to queue', 'addedElement': element})
     else:
         return jsonify({'message': 'Query params incorrect, verify queue'}), 404
 

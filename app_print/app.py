@@ -1,19 +1,25 @@
 from flask import Flask, send_file
-from flask_socketio import SocketIO, emit
 from PIL import Image, ImageFont, ImageDraw
-import io
-import locale , datetime
+import locale , datetime, base64, os
+from dotenv import load_dotenv
+from time import time, sleep
+import socketio
+# from geventwebsocket.handler import WebSocketHandler
+# from gevent.pywsgi import WSGIServer
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+load_dotenv()
+
+sio = socketio.Client()
+
+server_socket = os.environ.get('SERVER_SOCKET')
 
 def create_element(element, folder_path):
     img = Image.new('RGB', (800, 500), (255, 255, 255))
 
     # get a font
-    fnt = ImageFont.truetype(f"{folder_path}/app/utils/assets/fonts/Retroica.ttf", 50)
-    font2 = ImageFont.truetype(f"{folder_path}/app/utils/assets/fonts/OldSansBlack.ttf", 100)
-    im2 = Image.open(f"{folder_path}/app/utils/assets/icons/logo-2-2.png")
+    fnt = ImageFont.truetype(f"{folder_path}/assets/fonts/Retroica.ttf", 50)
+    font2 = ImageFont.truetype(f"{folder_path}/assets/fonts/OldSansBlack.ttf", 100)
+    im2 = Image.open(f"{folder_path}/assets/icons/logo-2-2.png")
     new_image = im2.resize((120, 90))
     d = ImageDraw.Draw(img)
 
@@ -24,25 +30,45 @@ def create_element(element, folder_path):
     #time
     locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     now = datetime.now()
-    fnt2 = ImageFont.truetype(f"{folder_path}/app/utils/assets/fonts/OldSansBlack.ttf", 30)
+    fnt2 = ImageFont.truetype(f"{folder_path}/assets/fonts/OldSansBlack.ttf", 30)
     date_string = now.strftime("%a %d de %B")
     hour_string = now.strftime("%H:%M")
     d.text((400, 50), date_string, font=fnt2, fill=("black"))
     d.text((400, 80), hour_string, font=fnt2, fill=("black"))
     final = img.rotate(180)
-    final.save(f"{folder_path}/app/utils/assets/icons/label.png")
+    final.save(f"{folder_path}/assets/icons/label.png")
 
 
-@socketio.on('image')
-def handle_image(data):
-    # Assuming data is base64 encoded image
-    image = Image.open(io.BytesIO(base64.b64decode(data)))
-    image.save('received_image.png')
-    print('Image saved')
+@sio.event
+def connect():
+    print("connected")
 
-@app.route('/')
-def index():
-    return send_file('received_image.png', mimetype='image/png')
 
-if __name__ == '__main__':
-    socketio.run(app)
+
+@sio.on('elementAdded')
+def handle_elementAdded(data):
+    folder_path = os.environ.get('FOLDER_PATH')()
+    create_element(element=data.addedElement, folder_path=folder_path)
+    os.system(f"lp {folder_path}/assets/icons/label.png")
+    print(data)
+
+@sio.event
+def disconnect():
+    print("disconnect")
+
+
+# sio.connect('http://'+server_socket+':5000')
+
+
+connected = False
+while not connected:
+    try:
+        sio.connect('http://'+ server_socket +':5000')
+        sio.wait()
+    except socketio.exceptions.ConnectionError as err:
+        print("ConnectionError: Connection Refused")
+        sleep(5)
+    else:
+        print("Connected!")
+        connected = True
+
