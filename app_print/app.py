@@ -47,7 +47,7 @@ def connect():
 
 @sio.on('elementAdded')
 def handle_elementAdded(data):
-    folder_path = os.environ.get('FOLDER_PATH')()
+    folder_path = os.getcwd()
     create_element(element=data.addedElement, folder_path=folder_path)
     os.system(f"lp {folder_path}/assets/icons/label.png")
     print(data)
