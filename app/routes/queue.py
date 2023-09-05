@@ -9,7 +9,7 @@ from app.utils.manage_queue import create_element
 
 queue_bp = Blueprint('queue', __name__)
 
-@socketio.on('elementSdded')
+@socketio.on('elementAdded')
 @queue_bp.route('/add_element', methods=['GET'])
 def add_element():
     queue_name = request.args.get('queue_name')
