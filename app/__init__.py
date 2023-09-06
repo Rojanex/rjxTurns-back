@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from app.utils.db_functions import connection_db
 import os
 import urllib3
-urllib3.disable_warnings()
+
 
 load_dotenv()
 
