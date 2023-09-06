@@ -24,6 +24,7 @@ def attended_elements_view():
 @data_bp.route('/get_queues', methods=['GET'])
 def get_queue():
     elements = get_all_queues()
+    
     json_elements = []
     for e in elements:
         row = {

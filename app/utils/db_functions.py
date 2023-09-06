@@ -44,6 +44,7 @@ def get_attend_elements():
 def get_all_queues():
     items = FilaMaestra.query.order_by()
     filtered_items = items.all()
+    print(filtered_items)
     return filtered_items
 
 

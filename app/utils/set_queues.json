@@ -3,11 +3,6 @@
         "start_value": "A01", 
         "format_string": "A{:02d}",
         "num_elements": 400
-    },
-    "Cita" : {
-        "start_value": "C01", 
-        "format_string": "C{:02d}",
-        "num_elements": 400
     }
 
 }
