@@ -14,10 +14,12 @@ queue_bp = Blueprint('queue', __name__)
 def add_element():
     queue_name = request.args.get('queue_name')
     priority = request.args.get('priority', 1)
+    nombre = request.args.get('name')
     queues_info = current_app.config['queues_info']  # Access queues_info from the app context
     
     target_queue = None
     for name, queue in queues_info:
+        print(name, queue_name)
         if name == queue_name:
             target_queue = queue
             break
@@ -36,7 +38,7 @@ def add_element():
     obj_fila_maestra = FilaMaestra.query.filter_by(nombre=name).first()
     if obj_fila_maestra:
         #Check num module
-        add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user='John Doe', fecha_inicio=datetime.now())
+        add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user=nombre, fecha_inicio=datetime.now())
         db.session.add(add_element_db)
         db.session.commit()
         socketio.emit('elementAdded', {'message': 'Element added to queue', 'addedElement': element})
@@ -89,9 +91,10 @@ def remove_element():
         return jsonify({'message': 'No more elements to remove'}), 200
 
 
-@queue_bp.route('/end_element', methods=['POST'])
+@queue_bp.route('/end_element', methods=['GET'])
 def end_element():
-    element = request.form.get('id')
+    element = request.args.get('id_element')
+
     if element:
         modify_element(id=element, column_to_modify='fecha_fin', data=datetime.now())
         return jsonify({'message': 'Element end '}), 200

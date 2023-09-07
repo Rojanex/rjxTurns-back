@@ -30,6 +30,7 @@ def get_queue():
         row = {
             'id': e.id,
             'front_name': e.f_name,
+            'nombre': e.nombre
         }
         json_elements.append(row)
     return jsonify({'message': 'Got all elements',

@@ -37,7 +37,8 @@ def get_attend_elements():
     items = RegistroFila.query\
         .filter(RegistroFila.fecha_fin.is_(None))\
         .filter(RegistroFila.fecha_atendido.isnot(None))\
-        .order_by(RegistroFila.fecha_atendido.desc())
+        .order_by(RegistroFila.fecha_atendido.desc())\
+        .limit(5)
     filtered_items = items.all()
     return filtered_items
 
