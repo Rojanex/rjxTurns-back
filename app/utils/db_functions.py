@@ -1,6 +1,7 @@
 import psycopg2
 from flask import current_app
-from sqlalchemy import inspect
+from sqlalchemy import inspect, update, and_
+from datetime import datetime
 from app.extensions import db
 from app.models.models import FilaMaestra, RegistroFila
 
@@ -24,6 +25,15 @@ def check_open_elements(name_queue, conn):
     cursor.execute(query)
     rows_with_null = cursor.fetchall()
     return rows_with_null
+
+
+def check_unfinished_elements(conn):
+    cursor = conn.cursor()
+    registro_fila = RegistroFila.__table__
+    query = "UPDATE registro_fila SET fecha_fin = %s WHERE fecha_fin IS NULL AND fecha_atendido IS NOT NULL"
+    values = (datetime.now(),)
+    cursor.execute(query, values)
+    conn.commit()
 
 def modify_element(id, column_to_modify, data):
     item = RegistroFila.query.filter_by(id=id).first() 

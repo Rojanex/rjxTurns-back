@@ -7,7 +7,7 @@ from app.routes.data import data_bp
 from app.utils.manage_queue import *
 from .extensions import db, socketio
 from dotenv import load_dotenv
-from app.utils.db_functions import connection_db
+from app.utils.db_functions import connection_db, check_unfinished_elements 
 import os
 import urllib3
 
@@ -26,6 +26,7 @@ def create_app():
     ma.init_app(app)
     with app.app_context():
         conn = connection_db()
+        unfinished_elements = check_unfinished_elements(conn)
         folder_root = os.getcwd()
         queues_info = create_queues_from_json(conn=conn, filename=folder_root)    
         app.config['queues_info'] = queues_info  # Store queues_info in the app context
