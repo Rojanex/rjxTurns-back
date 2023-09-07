@@ -37,9 +37,8 @@ def get_attend_elements():
     items = RegistroFila.query\
         .filter(RegistroFila.fecha_fin.is_(None))\
         .filter(RegistroFila.fecha_atendido.isnot(None))\
-        .order_by(RegistroFila.fecha_atendido.desc())\
-        .limit(5)
-    filtered_items = items.all()
+        .order_by(RegistroFila.fecha_atendido.desc())
+    filtered_items = items.limit(6).all()
     return filtered_items
 
 def get_all_queues():
