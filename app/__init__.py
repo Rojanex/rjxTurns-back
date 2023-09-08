@@ -24,16 +24,19 @@ def create_app():
     app.config.from_object(config)
     db.init_app(app)
     ma.init_app(app)
+
     with app.app_context():
         conn = connection_db()
+        create_tables()
+        check_unfinished_elements(conn) 
+
+    with app.app_context():
         folder_root = os.getcwd()
         queues_info = create_queues_from_json(conn=conn, filename=folder_root)    
         app.config['queues_info'] = queues_info  # Store queues_info in the app context
         app.config['folder_path'] = os.environ.get('FOLDER_PATH')
 
-    with app.app_context():
-        create_tables()
-        check_unfinished_elements(conn)   
+      
 
     app.config['total_modules'] = os.environ.get('NUM_MODULES')
     app.register_blueprint(queue_bp, url_prefix='/queue')
