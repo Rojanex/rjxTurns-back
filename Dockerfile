@@ -3,6 +3,6 @@ LABEL maintainer "Howl Automation"
 RUN mkdir /app
 COPY requirements.txt .
 COPY . .
-RUN python -m pip install requirements2.txt
+RUN python -m pip install requirements.txt
 EXPOSE 5000
 CMD ["python", "./run.py"]
