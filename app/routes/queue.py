@@ -45,9 +45,9 @@ def add_element():
     else:
         return jsonify({'message': 'Query params incorrect, verify queue'}), 404
 
-    #Create element png
-    folder_root = current_app.config['folder_path']
-    create_element(element, folder_root)    
+    # #Create element png for printing
+    # folder_root = current_app.config['folder_path']
+    # #create_element(element, folder_root)    
 
     target_queue.enqueue((priority, element, add_element_db.id))  # Add with priority 1
     
