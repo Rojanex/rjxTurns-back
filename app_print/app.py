@@ -13,7 +13,7 @@ sio = socketio.Client()
 
 server_socket = os.environ.get('SERVER_SOCKET')
 server_socket_port = os.environ.get('SERVER_SOCKET_PORT')
-
+folder_path_conn = os.getcwd()
 
 def create_element(element, folder_path):
     img = Image.new('RGB', (800, 470), (255, 255, 255))
@@ -39,6 +39,32 @@ def create_element(element, folder_path):
     d.text((370, 90), hour_string, font=fnt2, fill=("black"))
     final = img.rotate(90, fillcolor='white')
     final.save(f"{folder_path}/assets/icons/label.png")
+
+
+def connected_notification(folder_path):
+    img = Image.new('RGB', (800, 470), (255, 255, 255))
+
+    # get a font
+    fnt = ImageFont.truetype(f"{folder_path}/assets/fonts/Retroica.ttf", 50)
+    font2 = ImageFont.truetype(f"{folder_path}/assets/fonts/OldSansBlack.ttf", 100)
+    im2 = Image.open(f"{folder_path}/assets/icons/logo-2-2.png")
+    new_image = im2.resize((130, 90))
+    d = ImageDraw.Draw(img)
+
+    # draw text, half opacity
+    d.text((270, 200), "CONEXION A SERVIDOR: ", font=fnt, fill=("black"))
+    d.text((350, 270), "EXITOSA", font=font2, fill=("black"))
+    img.paste(new_image, (210, 50))
+    #time
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    now = datetime.datetime.now()
+    fnt2 = ImageFont.truetype(f"{folder_path}/assets/fonts/OldSansBlack.ttf", 25)
+    date_string = now.strftime("%a %d de %B")
+    hour_string = now.strftime("%H:%M")
+    d.text((370, 60), date_string, font=fnt2, fill=("black"))
+    d.text((370, 90), hour_string, font=fnt2, fill=("black"))
+    final = img.rotate(90, fillcolor='white')
+    final.save(f"{folder_path}/assets/icons/connected_notification.png")
 
 
 @sio.event
@@ -72,5 +98,6 @@ while not connected:
         sleep(5)
     else:
         print("Connected!")
+        connected_notification(folder_path=folder_path_conn)
         connected = True
 
