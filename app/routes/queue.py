@@ -83,7 +83,7 @@ def remove_element():
             print(result)
             modify_element(id=result[2], column_to_modify='modulo', data=module)
             modify_element(id=result[2], column_to_modify='fecha_atendido', data=datetime.now())
-            socketio.emit('element_removed', {'message': 'Element removed from queue', 'removedElement': result})
+            socketio.emit('element_removed', {'message': 'Element removed from queue', 'removedElement': result, 'modulo': module})
             return jsonify({'message': 'Element remove from queue'}), 200
         else:
             return jsonify({'message': 'Query params incorrect, verify queue'}), 404
