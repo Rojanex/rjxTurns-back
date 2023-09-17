@@ -5,7 +5,7 @@ from app.models.models import RegistroFila, FilaMaestra
 from app.extensions import db
 from app.utils.db_functions import modify_element
 from app.utils.manage_queue import create_element
-
+import re
 
 queue_bp = Blueprint('queue', __name__)
 
@@ -19,7 +19,6 @@ def add_element():
     
     target_queue = None
     for name, queue in queues_info:
-        print(name, queue_name)
         if name == queue_name:
             target_queue = queue
             break
@@ -29,7 +28,8 @@ def add_element():
 
     element = target_queue.get_next_value()
      # Check if 'C400' exists in the list of elements
-    c400_exists = any(elem[1] == 'A400' for elem in target_queue.get_elements()) #por favor revisa esto y mejora
+    element_letter = re.sub("[^A-Z]", "", target_queue.format_string)
+    c400_exists = any(elem[1] == f"{element_letter}{target_queue.num_elements}" for elem in target_queue.get_elements()) #por favor revisa esto y mejora
     priority2_exists = any(elem[0] == '2' for elem in target_queue.get_elements())
     if (c400_exists and priority != '0') or priority2_exists:
         priority = '2'  # Add with priority 2

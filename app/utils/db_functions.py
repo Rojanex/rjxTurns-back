@@ -20,7 +20,11 @@ def check_table_exists(table_name):
 
 def check_open_elements(name_queue, conn):
     obj_fila_maestra = FilaMaestra.query.filter_by(nombre=name_queue).first()
+    if obj_fila_maestra is None:
+        print('There is no queue with that name in db')
+        return False
     cursor = conn.cursor()
+    
     query = f"SELECT prioridad, turno, id FROM registro_fila WHERE fecha_fin IS NULL AND fecha_atendido IS NULL AND fila_id = {obj_fila_maestra.id}"
     cursor.execute(query)
     rows_with_null = cursor.fetchall()
@@ -65,6 +69,7 @@ def get_in_list_elements():
         .order_by(RegistroFila.fecha_inicio.asc())
     filtered_items = items.limit(6).all()
     return filtered_items
+
 
 
 

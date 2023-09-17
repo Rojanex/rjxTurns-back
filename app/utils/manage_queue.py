@@ -50,13 +50,12 @@ def create_queues_from_json(filename='/Users/rojanex/deveploment/rjxTurns/rjxTur
             #Check if table exists and open elements
             if check_table_exists('registro_fila'):
                 rows_with_null = check_open_elements(name_queue, conn)
-            
+                if rows_with_null is False:
+                    print(f"Error.. there is no queue in db with name {name_queue}")
+                    return False
             #Create queue class
             obj_queue = CustomQueue(start_value, format_string, num_elements, elements_to_add=rows_with_null)
             queues.append([name_queue, obj_queue])  
-
-        
-
     return queues
 
 def create_element(element, folder_path):

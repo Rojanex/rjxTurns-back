@@ -1,8 +1,19 @@
 {
-    "Admisiones" : {
+    "Orden" : {
         "start_value": "A01", 
         "format_string": "A{:02d}",
         "num_elements": 400
+    },
+    "Confirmacion" : {
+        "start_value": "C01", 
+        "format_string": "C{:02d}",
+        "num_elements": 400
+    },
+    "Otros" : {
+        "start_value": "T01", 
+        "format_string": "T{:02d}",
+        "num_elements": 400
     }
+    
 
 }
