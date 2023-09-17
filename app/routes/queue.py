@@ -5,7 +5,7 @@ from app.models.models import RegistroFila, FilaMaestra
 from app.extensions import db
 from app.utils.db_functions import modify_element
 from app.utils.manage_queue import create_element
-import re
+import re, os
 
 queue_bp = Blueprint('queue', __name__)
 
@@ -41,16 +41,16 @@ def add_element():
         add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user=nombre, fecha_inicio=datetime.now())
         db.session.add(add_element_db)
         db.session.commit()
-        socketio.emit('elementAdded', {'message': 'Element added to queue', 'addedElement': element})
+        #Socket message
+        #socketio.emit('elementAdded', {'message': 'Element added to queue', 'addedElement': element})
     else:
         return jsonify({'message': 'Query params incorrect, verify queue'}), 404
 
-    # #Create element png for printing
-    # folder_root = current_app.config['folder_path']
-    # #create_element(element, folder_root)    
-
+    #Create element png for printing
+    folder_root = current_app.config['folder_path']
+    create_element(element, folder_root)    
     target_queue.enqueue((priority, element, add_element_db.id))  # Add with priority 1
-    
+    os.system(f"lp {folder_root}/assets/icons/label.png") #print element
     
     elements = target_queue.get_elements()
     elements.sort(key=lambda x: (int(x[0] != '0'), int(x[0]), x[1]))

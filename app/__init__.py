@@ -34,7 +34,7 @@ def create_app():
         folder_root = os.getcwd()
         queues_info = create_queues_from_json(conn=conn, filename=folder_root)    
         app.config['queues_info'] = queues_info  # Store queues_info in the app context
-        app.config['folder_path'] = os.environ.get('FOLDER_PATH')
+        app.config['folder_path'] = folder_root
 
       
 
