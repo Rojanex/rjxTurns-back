@@ -1,6 +1,6 @@
 {
     "Orden" : {
-        "start_value": "A01", 
+        "start_value": "R01", 
         "format_string": "A{:02d}",
         "num_elements": 400
     },
