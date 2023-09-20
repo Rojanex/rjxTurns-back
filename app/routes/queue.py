@@ -50,7 +50,7 @@ def add_element():
     folder_root = current_app.config['folder_path']
     create_element(element, folder_root)    
     target_queue.enqueue((priority, element, add_element_db.id))  # Add with priority 1
-    os.system(f"lp {folder_root}utils/assets/icons/label.png") #print element
+    os.system(f"lp {folder_root}/utils/assets/icons/label.png") #print element
     
     elements = target_queue.get_elements()
     elements.sort(key=lambda x: (int(x[0] != '0'), int(x[0]), x[1]))
