@@ -15,6 +15,7 @@ def add_element():
     queue_name = request.args.get('queue_name')
     priority = request.args.get('priority', 1)
     nombre = request.args.get('name')
+    cedula = request.args.get('cc')
     queues_info = current_app.config['queues_info']  # Access queues_info from the app context
     
     target_queue = None
@@ -38,7 +39,7 @@ def add_element():
     obj_fila_maestra = FilaMaestra.query.filter_by(nombre=name).first()
     if obj_fila_maestra:
         #Check num module
-        add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user=nombre, fecha_inicio=datetime.now())
+        add_element_db = RegistroFila(turno=element, fila_id=obj_fila_maestra.id, prioridad=priority, user=nombre, cedula=cedula, fecha_inicio=datetime.now())
         db.session.add(add_element_db)
         db.session.commit()
         #Socket message

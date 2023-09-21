@@ -19,6 +19,7 @@ class RegistroFila(db.Model):
     modulo = db.Column(db.Integer)
     prioridad = db.Column(db.Integer)
     user = db.Column(db.String(255))
+    cedula = db.Column(db.String(255)) 
     fecha_inicio = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_atendido = db.Column(db.DateTime)
     fecha_fin = db.Column(db.DateTime) 
