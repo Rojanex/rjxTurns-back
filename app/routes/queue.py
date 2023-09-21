@@ -43,7 +43,7 @@ def add_element():
         db.session.add(add_element_db)
         db.session.commit()
         #Socket message
-        #socketio.emit('elementAdded', {'message': 'Element added to queue', 'addedElement': element})
+        socketio.emit('elementAdded', {'message': 'Element added to queue', 'addedElement': element})
     else:
         return jsonify({'message': 'Query params incorrect, verify queue'}), 404
 
