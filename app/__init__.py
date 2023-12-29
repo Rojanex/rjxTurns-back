@@ -9,10 +9,10 @@ from .extensions import db, socketio
 from dotenv import load_dotenv
 from app.utils.db_functions import connection_db, check_unfinished_elements 
 import os
-import urllib3
 
 
 load_dotenv()
+
 
 ma = Marshmallow()
 

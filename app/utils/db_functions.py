@@ -1,8 +1,8 @@
-import psycopg2
+import psycopg2, logging
 from flask import current_app
 from sqlalchemy import inspect, update, and_
 from datetime import datetime
-from app.extensions import db
+from app.extensions import db, logger
 from app.models.models import FilaMaestra, RegistroFila
 
 def connection_db():
@@ -20,11 +20,19 @@ def check_table_exists(table_name):
 
 def check_open_elements(name_queue, conn):
     obj_fila_maestra = FilaMaestra.query.filter_by(nombre=name_queue).first()
-    cursor = conn.cursor()
-    query = f"SELECT prioridad, turno, id FROM registro_fila WHERE fecha_fin IS NULL AND fecha_atendido IS NULL AND fila_id = {obj_fila_maestra.id}"
-    cursor.execute(query)
-    rows_with_null = cursor.fetchall()
-    return rows_with_null
+    try:
+        fila_id = obj_fila_maestra.id
+        cursor = conn.cursor()
+        query = f"SELECT prioridad, turno, id FROM registro_fila WHERE fecha_fin IS NULL AND \
+                    fecha_atendido IS NULL AND fila_id = {fila_id}"
+        cursor.execute(query)
+        rows_with_null = cursor.fetchall()
+        return rows_with_null
+    except AttributeError:
+        logger.critical(f"'{name_queue}' does not exits in database, therefore NoneType has no attribute 'id'")
+        return False
+   
+    
 
 
 def check_unfinished_elements(conn):
