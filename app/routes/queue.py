@@ -48,10 +48,10 @@ def add_element():
         return jsonify({'message': 'Query params incorrect, verify queue'}), 404
 
     #Create element png for printing
-    folder_root = current_app.config['folder_path']
-    create_element(element, folder_root)    
+    # folder_root = current_app.config['folder_path']
+    # create_element(element, folder_root)    
     target_queue.enqueue((priority, element, add_element_db.id))  # Add with priority 1
-    os.system(f"lp {folder_root}/app/utils/assets/icons/label.png") #print element
+    # os.system(f"lp {folder_root}/app/utils/assets/icons/label.png") #print element
     
     elements = target_queue.get_elements()
     elements.sort(key=lambda x: (int(x[0] != '0'), int(x[0]), x[1]))
